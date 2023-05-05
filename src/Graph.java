@@ -1,8 +1,11 @@
 import java.util.*;
 
 class Graph<T> {
+    //References
     //https://progressivecoder.com/graph-implementation-in-java-using-hashmap/
     private Map<T, List<T>  > graph = new HashMap<>();
+    private T sink;
+    private ArrayList<T> arraySink; //stores all the sinks
 
     public void addEdge(T src, T dest) {
 
@@ -21,24 +24,6 @@ class Graph<T> {
         graph.put(vertex, new LinkedList<T>());
     }
 
-    public void hasVertex(T vertex) {
-        if(graph.containsKey(vertex)) {
-            System.out.println("The Graph contains " + vertex + " as a vertex");
-        }else {
-            System.out.println("The Graph does not contain " + vertex + " as a vertex");
-        }
-    }
-            //graphObject.hasVertex(3);
-            //graphObject.hasEdge(0,1);
-    public void hasEdge(T source, T destination) {
-        if(graph.get(source).contains(destination)) {
-            System.out.println("The Graph has an edge between " + source + " and " + destination);
-        }else {
-            System.out.println("The Graph has no edge between " + source + " and " + destination);
-        }
-    }
-
-
     public String printGraph() {
         StringBuilder builder = new StringBuilder();
 
@@ -52,39 +37,63 @@ class Graph<T> {
         return builder.toString();
     }
 
-    public boolean isAcyclic() {
-        // Create a set to keep track of visited vertices
-        Set<Integer> visited = new HashSet<>();
+    public boolean isAcyclicBySink() {
+         while (!graph.isEmpty()) {
 
-        while (!graph.isEmpty()) {
-            // Find a sink (a vertex with no outgoing edges)
-            int sink = -1;
-            for (T vertex : graph.keySet()) {
-                if (graph.get(vertex).isEmpty()) {
-                    sink = (int) vertex;
-                    System.out.println("hhh"+sink);
-                    break;
-                }
-            }
+        // Find a sink in the graph
+             int checkSink = -1;
+             if (findSink() != null) {
+                  sink = findSink();
+                 checkSink = (int) sink;
+                 // access or modify bannan here
+             }else {
+                 checkSink = -1;
+             }
 
-            // If no sink is found, the graph has a cycle
-            if (sink == -1) {
-                return false;
-            }
+        if (checkSink == -1) {
 
-            // Remove the sink and mark it as visited
-            graph.remove(sink);
-            visited.add(sink);
+            // If there are no sinks, the graph contains a cycle
+            return false;
+        } else {
 
-            // Remove the sink from the adjacency list of its neighbors
-            for (List<T> neighbors : graph.values()) {
-                neighbors.remove(Integer.valueOf(sink));
-            }
+            // Remove the sink from the graph
+            removeVertex(sink);
+            // Print the sink that was removed
+            System.out.println("Removed sinks: " + arraySink.toString());
         }
 
-        // If all vertices have been visited, the graph is acyclic
-        return visited.size() == graph.size();
+    }
+        return true;
+}
+
+    //function to find the sink in a graph
+    private T findSink() {
+        arraySink = new ArrayList<T>();
+        for (T vertex : graph.keySet()) {
+
+            // A sink has no outgoing edges
+            if (graph.get(vertex).isEmpty()) {
+                arraySink.add(vertex);
+               // System.out.println(arraySink);
+                System.out.println("sink is "+vertex);
+                return vertex;
+            }
+        }
+        // If there are no sinks, return null
+        return null;
     }
 
+    // Helper method to remove a vertex and its edges from the graph
+    private void removeVertex(T vertex) {
+        graph.remove(vertex);
+        ArrayList stuff = new ArrayList<>();
+        for (List<T> edges : graph.values()) {
+           edges.removeIf(edge -> edge == vertex);
+
+             stuff.add(edges);
+        }
+        System.out.println("After Removing stuff");
+        System.out.println(stuff);
+    }
 
 }

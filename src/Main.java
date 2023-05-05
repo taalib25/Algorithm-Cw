@@ -5,37 +5,57 @@ import java.util.Scanner;
 public class Main {
 
 
+    private static Scanner scanner;
+    private static int userInput;
+    static Graph<Integer> graphObject = new Graph<>();
     public static void main(String[] args) {
-        Graph<Integer> graphObject = new Graph<>();
+
+        System.out.println("Reading from file ");
         parseFile(graphObject);
-
-       /* graphObject.addEdge(1, 2);
-        graphObject.addEdge(2, 3);
-        graphObject.addEdge(2, 4);
-        graphObject.addEdge(2, 5);
-        graphObject.addEdge(3, 1);
-        graphObject.addEdge(3, 6);
-        graphObject.addEdge(4, 5);
-        graphObject.addEdge(5, 6);
-*/
-
-
-
     }
 
-    private static void parseFile(Graph<Integer> graphObject) {
+    private static void menu(){
+        scanner = new Scanner(System.in);
+        while (userInput != 3){
+            System.out.println(
+                    """
+                            \n===================================================
+                            Wanna check if graph is cyclic or acyclic ?
+                            Press 1 : Use Sink algorithm method 
+                            Press 2 : Use Depth First Search Algorithm
+                            Press 3 : Quit 
+                            """
+            );
+            System.out.println("Enter a Number  : ");
+            userInput = scanner.nextInt();
+            if (userInput == 1){
+                //boolean isAcyclic = isAcyclicBySink();
+                System.out.println();
+            } else if (userInput == 3 ) {
+                graphObject.testf();
+                break;
+
+            }
+
+
+        }
+        scanner.close();
+    }
+
+
+    private static void parseFile(Graph<Integer> graph) {
 
         try {
             File inputFile = new File("input.txt");
-            Scanner scanner = new Scanner(inputFile);
+            scanner = new Scanner(inputFile);
 
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                String[] parts = line.split(" ");
-                int src = Integer.parseInt(parts[0]);
-                int dest = Integer.parseInt(parts[1]);
+                String[] arrayFromFile = line.split(" ");
+                int src = Integer.parseInt(arrayFromFile[0]);
+                int dest = Integer.parseInt(arrayFromFile[1]);
 
-                graphObject.addEdge(src, dest);
+                graph.addEdge(src, dest);
             }
 
             scanner.close();
@@ -44,12 +64,20 @@ public class Main {
             e.printStackTrace();
         }
 
-        System.out.println("Graph:\n" + graphObject.printGraph());
-        boolean isacyclic = graphObject.isAcyclic();
-        System.out.println("The graph is "+ isacyclic);
+        System.out.println("Graph:\n" + graph.printGraph());
+        boolean isAcyclic = graph.isAcyclicBySink();
+        System.out.println("=======================\n" +
+                "Graph:\n" + graph.printGraph());
+        if (isAcyclic){
+            System.out.println("The graph is Acyclic");
+        }else {
+            System.out.println("The graph is a cyclic");
+        }
+
 
         //2 methods to detect cyclic -> dfs and sink algo
 
 
     }
+
 }
