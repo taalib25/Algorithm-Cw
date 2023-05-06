@@ -1,13 +1,13 @@
 import java.util.*;
 
-class Graph<T> {
+class Graph<node> {
     //References
     //https://progressivecoder.com/graph-implementation-in-java-using-hashmap/
-    private Map<T, List<T>  > graph = new HashMap<>();
-    private T sink;
-    private ArrayList<T> arraySink; //stores all the sinks
+    private Map<node, List<node>  > graph = new HashMap<>();
+    private node sink;
+    private ArrayList<node> arraySink; //stores all the sinks
 
-    public void addEdge(T src, T dest) {
+    public void addEdge(node src, node dest) {
 
         if (!graph.containsKey(src)) {
             addVertex(src);
@@ -20,16 +20,16 @@ class Graph<T> {
         graph.get(src).add(dest);
 
     }
-    private void addVertex(T vertex) {
-        graph.put(vertex, new LinkedList<T>());
+    private void addVertex(node vertex) {
+        graph.put(vertex, new LinkedList<node>());
     }
 
     public String printGraph() {
         StringBuilder builder = new StringBuilder();
 
-        for(T vertex : graph.keySet()) {
+        for(node vertex : graph.keySet()) {
             builder.append(vertex.toString() + ": ");
-            for(T node: graph.get(vertex)) {
+            for(node node: graph.get(vertex)) {
                 builder.append(node.toString() + " ");
             }
             builder.append("\n");
@@ -38,15 +38,18 @@ class Graph<T> {
     }
 
     public boolean isAcyclicBySink() {
+        arraySink = new ArrayList<node>();
+        System.out.println("========ELIMINATION PROCESS =========");
          while (!graph.isEmpty()) {
 
         // Find a sink in the graph
              int checkSink = -1;
              if (findSink() != null) {
                   sink = findSink();
+                 arraySink.add(sink);
+                 System.out.println("Found Sink -> "+sink);
                  checkSink = (int) sink;
-                 // access or modify bannan here
-             }else {
+                 }else {
                  checkSink = -1;
              }
 
@@ -59,41 +62,86 @@ class Graph<T> {
             // Remove the sink from the graph
             removeVertex(sink);
             // Print the sink that was removed
-            System.out.println("Removed sinks: " + arraySink.toString());
+
         }
 
     }
+
+         System.out.println("Removed sinks: " + arraySink.toString().substring(1, arraySink.toString().length()-1));
+         System.out.println("=====================================");
         return true;
 }
 
     //function to find the sink in a graph
-    private T findSink() {
-        arraySink = new ArrayList<T>();
-        for (T vertex : graph.keySet()) {
+    private node findSink() {
 
+        for (node vertex : graph.keySet()) {
             // A sink has no outgoing edges
             if (graph.get(vertex).isEmpty()) {
-                arraySink.add(vertex);
-               // System.out.println(arraySink);
-                System.out.println("sink is "+vertex);
                 return vertex;
             }
+
         }
         // If there are no sinks, return null
         return null;
     }
 
-    // Helper method to remove a vertex and its edges from the graph
-    private void removeVertex(T vertex) {
+    //Removes  vertexes and its edges
+    private void removeVertex(node vertex) {
         graph.remove(vertex);
-        ArrayList stuff = new ArrayList<>();
-        for (List<T> edges : graph.values()) {
+        ArrayList vertix = new ArrayList<>();
+        for (List<node> edges : graph.values()) {
            edges.removeIf(edge -> edge == vertex);
 
-             stuff.add(edges);
+             vertix.add(edges);
         }
-        System.out.println("After Removing stuff");
-        System.out.println(stuff);
+
     }
+
+    public void findCycles() {
+        //https://www.geeksforgeeks.org/detect-cycle-in-a-graph/
+
+        Set<node> visited = new HashSet<>();
+        Stack<node> stack = new Stack<>();
+        List<List<node>> cycles = new ArrayList<>();
+
+
+        for (node vertex : graph.keySet()) {
+            if (!visited.contains(vertex)) {
+
+                //traversing through the graph
+                depthFirstSearch(vertex, visited, stack, cycles); //recurring function
+            }
+        }
+
+        System.out.println("Number of cycles: " + cycles.size());
+        for (List<node> cycle : cycles) {
+            System.out.println("Cycle: " + cycle);
+        }
+    }
+
+    private void depthFirstSearch(node vertex, Set<node> visited, Stack<node> stack, List<List<node>> cycles) {
+        visited.add(vertex);
+        stack.push(vertex);
+
+        for (node neighbor : graph.get(vertex)) {
+            if (!visited.contains(neighbor)) {
+                depthFirstSearch(neighbor, visited, stack, cycles);
+            } else if (stack.contains(neighbor)) {
+                List<node> cycle = new ArrayList<>();
+                while (!stack.peek().equals(neighbor)) {
+                    cycle.add(stack.pop());
+                }
+                cycle.add(stack.pop());
+                cycles.add(cycle);
+            }
+        }
+        if(!stack.isEmpty()){
+            stack.pop();
+        }
+
+    }
+
+
 
 }
